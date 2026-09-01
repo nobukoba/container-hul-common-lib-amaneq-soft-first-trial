@@ -1,1 +1,146 @@
 # container-hul-common-lib-amaneq-soft-first-trial
+
+Docker / Apptainer container for the SPADI `hul-common-lib` and `amaneq-soft` software.
+
+The image is based on AlmaLinux 10.1 and includes command-line tools useful for development and network diagnostics.
+
+## How to use
+
+### Docker: pull from GHCR
+
+```bash
+docker pull ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
+```
+
+Run it directly:
+
+```bash
+docker run --rm -it \
+  --platform linux/amd64/v2 \
+  --network host \
+  -v "$PWD/work:/work" \
+  ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
+```
+
+Or clone this repository and use the helper script:
+
+```bash
+git clone https://github.com/nobukoba/container-hul-common-lib-amaneq-soft-first-trial.git
+cd container-hul-common-lib-amaneq-soft-first-trial
+bash run-docker-container.sh
+```
+
+The host directory `./work` is mounted at `/work` in the container.
+
+### Apptainer / Singularity
+
+The latest SIF image is published in the GitHub `latest` release.
+
+```bash
+curl -L -O \
+  https://github.com/nobukoba/container-hul-common-lib-amaneq-soft-first-trial/releases/download/latest/container-hul-common-lib-amaneq-soft-first-trial.sif
+```
+
+Run it with:
+
+```bash
+apptainer shell \
+  --bind "$PWD/work:/work" \
+  container-hul-common-lib-amaneq-soft-first-trial.sif
+```
+
+For Singularity:
+
+```bash
+singularity shell \
+  --bind "$PWD/work:/work" \
+  container-hul-common-lib-amaneq-soft-first-trial.sif
+```
+
+## Image tags
+
+GitHub Actions publishes two Docker tags for each successful build:
+
+```text
+latest
+YYYYMMDD-HHMMutc
+```
+
+For example:
+
+```text
+ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
+ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:20260901-1234utc
+```
+
+The workflow also creates both:
+
+```text
+container-hul-common-lib-amaneq-soft-first-trial.sif
+container-hul-common-lib-amaneq-soft-first-trial-YYYYMMDD-HHMMutc.sif
+```
+
+## Included software
+
+The container builds and installs:
+
+- `spadi-alliance/hul-common-lib`
+- `spadi-alliance/amaneq-soft`
+
+They are installed under `/opt/spadi`.
+
+Important paths are:
+
+```text
+/opt/spadi/bin
+/opt/spadi/include
+/opt/spadi/lib
+/opt/spadi/lib64
+/opt/spadi/src
+/work
+```
+
+`/opt/spadi` is the image-provided software area. `/work` is intended for user files and development work.
+
+The image also includes common network and system diagnostic commands such as `ip`, `ping`, `ss`, `netstat`, `dig`, `nslookup`, `traceroute`, `tcpdump`, `nc`, `curl`, `lsof`, `ps`, and related utilities. Emacs is also included for interactive editing.
+
+## Build locally
+
+```bash
+git clone https://github.com/nobukoba/container-hul-common-lib-amaneq-soft-first-trial.git
+cd container-hul-common-lib-amaneq-soft-first-trial
+bash build-docker-image.sh
+```
+
+The local build creates both a UTC timestamped tag and `latest`:
+
+```text
+container-hul-common-lib-amaneq-soft-first-trial:YYYYMMDD-HHMMutc
+container-hul-common-lib-amaneq-soft-first-trial:latest
+```
+
+You can override the build parallelism, for example:
+
+```bash
+NPROC=8 bash build-docker-image.sh
+```
+
+## Container helper scripts
+
+The repository-level helper scripts are kept at the top level so that the common operations are easy to find:
+
+```text
+build-docker-image.sh
+run-docker-container.sh
+login-docker-container.sh
+```
+
+Use `run-docker-container.sh` to start a named interactive container. In another terminal, use `login-docker-container.sh` to enter the running container.
+
+## Development
+
+For development and maintenance of this container, please use **ChatGPT, Codex, or another AI assistant/coding agent** together with the instructions in [`AGENTS.md`](./AGENTS.md).
+
+Before modifying the container, ask the AI agent to read `AGENTS.md` and inspect the current repository files. `AGENTS.md` contains the repository-specific build requirements, directory layout, image/tag conventions, diagnostic-tool requirements, and maintenance guidelines.
+
+`CHATGPT_REBUILD_PROMPT.md` is not used in this repository. The repository itself and `AGENTS.md` are the authoritative sources for development and maintenance.
