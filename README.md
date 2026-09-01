@@ -137,7 +137,7 @@ login-docker-container.sh
 
 Use `run-docker-container.sh` to start a named interactive container. In another terminal, use `login-docker-container.sh` to enter the running container.
 
-## Development
+## For Developers
 
 For development and maintenance of this container, please use **ChatGPT, Codex, or another AI assistant/coding agent** together with the instructions in [`AGENTS.md`](./AGENTS.md).
 
