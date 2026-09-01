@@ -26,19 +26,17 @@ docker pull --platform linux/amd64 \
   ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
 ```
 
-Run it:
+Run it from the directory you want to use as your workspace:
 
 ```bash
-mkdir -p work
-
 docker run --rm -it \
   --platform linux/amd64 \
   --network host \
-  -v "$PWD/work:/work" \
+  -v "$PWD:/workspace" \
   ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
 ```
 
-The host directory `./work` is mounted at `/work` in the container.
+The current host directory (`$PWD`) is mounted at `/workspace` in the container, and the container starts in `/workspace`.
 
 On Apple Silicon Macs, `--platform linux/amd64` makes Docker Desktop use amd64 emulation. On Linux, `--network host` is useful when communicating directly with HUL/AMANEQ front-end hardware. Docker Desktop on macOS implements host networking through its Linux VM, so its behavior is not identical to native Linux host networking.
 
@@ -51,13 +49,11 @@ curl -L -O \
   https://github.com/nobukoba/container-hul-common-lib-amaneq-soft-first-trial/releases/download/latest/container-hul-common-lib-amaneq-soft-first-trial.sif
 ```
 
-Run it with Apptainer:
+Run it from the directory you want to use as your workspace:
 
 ```bash
-mkdir -p work
-
 apptainer shell \
-  --bind "$PWD/work:/work" \
+  --bind "$PWD:/workspace" \
   container-hul-common-lib-amaneq-soft-first-trial.sif
 ```
 
@@ -65,7 +61,7 @@ or Singularity:
 
 ```bash
 singularity shell \
-  --bind "$PWD/work:/work" \
+  --bind "$PWD:/workspace" \
   container-hul-common-lib-amaneq-soft-first-trial.sif
 ```
 
@@ -79,10 +75,10 @@ Important paths inside the container are:
 /opt/spadi/lib
 /opt/spadi/lib64
 /opt/spadi/src
-/work
+/workspace
 ```
 
-`/opt/spadi` contains the installed software. `/work` is the writable area intended for user files and development work.
+`/opt/spadi` contains the installed software. `/workspace` is the user workspace and is normally bound to the current host directory (`$PWD`).
 
 ## For Developers
 
@@ -112,10 +108,10 @@ To run the published GHCR image through the helper:
 It defaults to:
 
 ```text
-image:    ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
-platform: linux/amd64
-work:     $PWD/work -> /work
-network:  host
+image:     ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
+platform:  linux/amd64
+workspace: $PWD -> /workspace
+network:   host
 ```
 
 In another terminal, enter the running container with:
@@ -124,12 +120,12 @@ In another terminal, enter the running container with:
 ./login-docker-container.sh
 ```
 
-The image, platform, and work directory can be overridden when needed:
+The image, platform, and workspace directory can be overridden when needed:
 
 ```bash
 IMAGE=container-hul-common-lib-amaneq-soft-first-trial:latest ./run-docker-container.sh
 PLATFORM=linux/amd64 ./run-docker-container.sh
-WORK_DIR=/path/to/work ./run-docker-container.sh
+WORKSPACE_DIR=/path/to/project ./run-docker-container.sh
 ```
 
 ### Build locally
