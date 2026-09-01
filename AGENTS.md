@@ -26,7 +26,7 @@ The image is intended for development, operation, and diagnostic work with HUL/A
 
 1. Build the container from AlmaLinux 10.1 unless the repository is intentionally being migrated to another base image.
 
-2. Publish and run the Docker image as the standard `linux/amd64` platform. This allows ordinary x86_64 Linux hosts to use the image directly and Apple Silicon Macs to run it through Docker Desktop's amd64 emulation when `--platform linux/amd64` is specified. Do not publish the image only as a nonstandard `linux/amd64/v2` manifest variant.
+2. Target and publish the Docker image explicitly as `linux/amd64/v2` (x86-64-v2). Keep `linux/amd64/v2` explicit in GitHub Actions, local build helpers, Docker pull/run examples, and runtime helpers. Apple Silicon Macs should run this image through Docker Desktop's amd64 emulation with `--platform linux/amd64/v2`; do not silently change the target to plain `linux/amd64` merely because the host is arm64.
 
 3. Build `hul-common-lib` before `amaneq-soft`.
 
@@ -63,7 +63,7 @@ container: /work
 
 `run-docker-container.sh` should create the host work directory automatically if it does not exist and allow another directory to be selected with the `WORK_DIR` environment variable.
 
-The run helper should default to the published GHCR image and to `PLATFORM=linux/amd64`, while allowing both to be overridden through environment variables.
+The run helper should default to the published GHCR image and to `PLATFORM=linux/amd64/v2`, while allowing both to be overridden through environment variables.
 
 ## Diagnostic and interactive tools
 
