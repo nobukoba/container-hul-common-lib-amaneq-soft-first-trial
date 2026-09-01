@@ -19,6 +19,8 @@ The image also includes common network and system diagnostic tools such as `ip`,
 
 ### Docker
 
+#### Linux / macOS
+
 Pull the latest image from GHCR:
 
 ```bash
@@ -26,7 +28,7 @@ docker pull --platform linux/amd64 \
   ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
 ```
 
-Run it from the directory you want to use as your workspace:
+Run the container from the directory you want to use as your workspace:
 
 ```bash
 docker run --rm -it \
@@ -38,7 +40,31 @@ docker run --rm -it \
 
 The current host directory (`$PWD`) is mounted at `/workspace` in the container, and the container starts in `/workspace`.
 
-On Apple Silicon Macs, `--platform linux/amd64` makes Docker Desktop use amd64 emulation. On Linux, `--network host` is useful when communicating directly with HUL/AMANEQ front-end hardware. Docker Desktop on macOS implements host networking through its Linux VM, so its behavior is not identical to native Linux host networking.
+On Apple Silicon Macs, `--platform linux/amd64` makes Docker Desktop use amd64 emulation.
+
+#### Windows
+
+Install Docker Desktop for Windows and use Linux containers. Docker Desktop normally uses the WSL 2 backend.
+
+Open PowerShell in the directory you want to use as your workspace.
+
+Pull the latest image:
+
+```powershell
+docker pull --platform linux/amd64 ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
+```
+
+Run the container:
+
+```powershell
+docker run --rm -it --platform linux/amd64 --network host -v "${PWD}:/workspace" ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
+```
+
+The current PowerShell directory is mounted at `/workspace` in the container, and the container starts in `/workspace`.
+
+On Windows, `--network host` requires host networking to be enabled in Docker Desktop. Its behavior differs from native Linux host networking.
+
+For direct communication with HUL/AMANEQ front-end hardware, native Linux is recommended.
 
 ### Apptainer / Singularity
 
@@ -64,6 +90,8 @@ singularity shell \
   --bind "$PWD:/workspace" \
   container-hul-common-lib-amaneq-soft-first-trial.sif
 ```
+
+The current host directory (`$PWD`) is mounted at `/workspace`.
 
 ## Container layout
 
