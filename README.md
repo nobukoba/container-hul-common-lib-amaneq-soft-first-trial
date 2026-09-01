@@ -8,8 +8,8 @@ The image is based on AlmaLinux 10.1 and targets `linux/amd64/v2` (x86-64-v2).
 
 The container builds and installs:
 
-- `spadi-alliance/hul-common-lib`
-- `spadi-alliance/amaneq-soft`
+- [`spadi-alliance/hul-common-lib`](https://github.com/spadi-alliance/hul-common-lib)
+- [`spadi-alliance/amaneq-soft`](https://github.com/spadi-alliance/amaneq-soft)
 
 They are installed under `/opt/spadi`.
 
