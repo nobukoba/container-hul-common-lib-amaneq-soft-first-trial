@@ -2,11 +2,12 @@
 set -euo pipefail
 
 IMAGE_NAME="${IMAGE_NAME:-container-hul-common-lib-amaneq-soft-first-trial}"
+PLATFORM="${PLATFORM:-linux/amd64}"
 NPROC="${NPROC:-4}"
 STAMP="${STAMP:-$(date -u +%Y%m%d-%H%Mutc)}"
 
 docker build \
-  --platform linux/amd64/v2 \
+  --platform "${PLATFORM}" \
   --progress=plain \
   --build-arg NPROC="${NPROC}" \
   -t "${IMAGE_NAME}:${STAMP}" \
