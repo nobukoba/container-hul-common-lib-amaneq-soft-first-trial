@@ -8,10 +8,10 @@ The image is based on AlmaLinux 10.1 and includes command-line tools useful for 
 
 ### Docker: pull from GHCR
 
-The published Docker image is `linux/amd64`. On Apple Silicon Macs, specify the platform explicitly so Docker Desktop uses amd64 emulation.
+The published Docker image targets `linux/amd64/v2` (x86-64-v2). On Apple Silicon Macs, specify the platform explicitly so Docker Desktop uses amd64 emulation.
 
 ```bash
-docker pull --platform linux/amd64 \
+docker pull --platform linux/amd64/v2 \
   ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
 ```
 
@@ -19,13 +19,11 @@ Run it directly:
 
 ```bash
 docker run --rm -it \
-  --platform linux/amd64 \
+  --platform linux/amd64/v2 \
   --network host \
   -v "$PWD/work:/work" \
   ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
 ```
-
-On an ordinary x86_64 Linux host, `--platform linux/amd64` is harmless and keeps the command identical across Linux and Apple Silicon Mac environments.
 
 Or clone this repository and use the helper script:
 
@@ -35,15 +33,15 @@ cd container-hul-common-lib-amaneq-soft-first-trial
 ./run-docker-container.sh
 ```
 
-`run-docker-container.sh` defaults to the published GHCR `latest` image and `linux/amd64`, so a separate `docker pull` is normally not required. Docker will pull the image automatically if it is not already present locally.
+`run-docker-container.sh` defaults to the published GHCR `latest` image and explicitly uses `linux/amd64/v2`, so a separate `docker pull` is normally not required. Docker will pull the image automatically if it is not already present locally.
 
 The host directory `./work` is mounted at `/work` in the container.
 
-You can override the image or platform when needed:
+You can override the image or platform when deliberately needed:
 
 ```bash
 IMAGE=container-hul-common-lib-amaneq-soft-first-trial:latest ./run-docker-container.sh
-PLATFORM=linux/amd64 ./run-docker-container.sh
+PLATFORM=linux/amd64/v2 ./run-docker-container.sh
 ```
 
 The helper also uses `--network host`. This is especially useful on Linux hosts when communicating directly with HUL/AMANEQ front-end hardware. Docker Desktop on macOS implements host networking through its Linux VM, so its behavior is not identical to native Linux host networking.
@@ -128,7 +126,7 @@ cd container-hul-common-lib-amaneq-soft-first-trial
 ./build-docker-image.sh
 ```
 
-The local build targets `linux/amd64` by default and creates both a UTC timestamped tag and `latest`:
+The local build explicitly targets `linux/amd64/v2` by default and creates both a UTC timestamped tag and `latest`:
 
 ```text
 container-hul-common-lib-amaneq-soft-first-trial:YYYYMMDD-HHMMutc
@@ -141,10 +139,10 @@ You can override the build parallelism, for example:
 NPROC=8 ./build-docker-image.sh
 ```
 
-You can also override the target platform when deliberately testing another architecture:
+The default platform is:
 
 ```bash
-PLATFORM=linux/amd64 ./build-docker-image.sh
+PLATFORM=linux/amd64/v2 ./build-docker-image.sh
 ```
 
 ## Container helper scripts
