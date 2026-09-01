@@ -33,7 +33,7 @@ RUN dnf -y update && \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
-RUN mkdir -p /opt/spadi/src /work
+RUN mkdir -p /opt/spadi/src /workspace
 
 WORKDIR /opt/spadi/src
 
@@ -63,6 +63,6 @@ RUN git clone https://github.com/spadi-alliance/amaneq-soft.git amaneq-soft && \
 ENV PATH=/opt/spadi/bin:${PATH}
 ENV LD_LIBRARY_PATH=/opt/spadi/lib64:/opt/spadi/lib
 
-WORKDIR /work
+WORKDIR /workspace
 
 CMD ["/bin/bash"]
