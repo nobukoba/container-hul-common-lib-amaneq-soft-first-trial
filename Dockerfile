@@ -1,4 +1,4 @@
-FROM almalinux/10-base:10.1
+FROM almalinux:9
 
 ARG NPROC=4
 ARG HUL_COMMON_LIB_REF=main
