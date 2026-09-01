@@ -2,7 +2,7 @@
 set -euo pipefail
 
 IMAGE="${IMAGE:-ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest}"
-PLATFORM="${PLATFORM:-linux/amd64/v2}"
+PLATFORM="${PLATFORM:-linux/amd64}"
 WORK_DIR="${WORK_DIR:-$PWD/work}"
 CONTAINER_NAME="${CONTAINER_NAME:-container-hul-common-lib-amaneq-soft-first-trial}"
 
