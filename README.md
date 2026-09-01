@@ -2,7 +2,7 @@
 
 Docker / Apptainer container for the SPADI `hul-common-lib` and `amaneq-soft` software.
 
-The image is based on AlmaLinux 10.1 and targets `linux/amd64/v2` (x86-64-v2).
+The image is based on AlmaLinux 9 and targets standard `linux/amd64`.
 
 ## Included software
 
@@ -22,7 +22,7 @@ The image also includes common network and system diagnostic tools such as `ip`,
 Pull the latest image from GHCR:
 
 ```bash
-docker pull --platform linux/amd64/v2 \
+docker pull --platform linux/amd64 \
   ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
 ```
 
@@ -32,7 +32,7 @@ Run it:
 mkdir -p work
 
 docker run --rm -it \
-  --platform linux/amd64/v2 \
+  --platform linux/amd64 \
   --network host \
   -v "$PWD/work:/work" \
   ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
@@ -40,7 +40,7 @@ docker run --rm -it \
 
 The host directory `./work` is mounted at `/work` in the container.
 
-On Apple Silicon Macs, `--platform linux/amd64/v2` makes Docker Desktop use amd64 emulation. On Linux, `--network host` is useful when communicating directly with HUL/AMANEQ front-end hardware. Docker Desktop on macOS implements host networking through its Linux VM, so its behavior is not identical to native Linux host networking.
+On Apple Silicon Macs, `--platform linux/amd64` makes Docker Desktop use amd64 emulation. On Linux, `--network host` is useful when communicating directly with HUL/AMANEQ front-end hardware. Docker Desktop on macOS implements host networking through its Linux VM, so its behavior is not identical to native Linux host networking.
 
 ### Apptainer / Singularity
 
@@ -113,7 +113,7 @@ It defaults to:
 
 ```text
 image:    ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
-platform: linux/amd64/v2
+platform: linux/amd64
 work:     $PWD/work -> /work
 network:  host
 ```
@@ -128,7 +128,7 @@ The image, platform, and work directory can be overridden when needed:
 
 ```bash
 IMAGE=container-hul-common-lib-amaneq-soft-first-trial:latest ./run-docker-container.sh
-PLATFORM=linux/amd64/v2 ./run-docker-container.sh
+PLATFORM=linux/amd64 ./run-docker-container.sh
 WORK_DIR=/path/to/work ./run-docker-container.sh
 ```
 
@@ -138,7 +138,7 @@ WORK_DIR=/path/to/work ./run-docker-container.sh
 ./build-docker-image.sh
 ```
 
-The local build explicitly targets `linux/amd64/v2` by default and creates both a UTC timestamped tag and `latest`:
+The local build targets `linux/amd64` by default and creates both a UTC timestamped tag and `latest`:
 
 ```text
 container-hul-common-lib-amaneq-soft-first-trial:YYYYMMDD-HHMMutc
@@ -153,7 +153,7 @@ NPROC=8 ./build-docker-image.sh
 
 ### Published images and tags
 
-GitHub Actions publishes the GHCR image as `linux/amd64/v2` with both:
+GitHub Actions publishes the GHCR image as `linux/amd64` with both:
 
 ```text
 latest
