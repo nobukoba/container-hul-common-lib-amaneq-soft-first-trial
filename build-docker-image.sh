@@ -2,7 +2,7 @@
 set -euo pipefail
 
 IMAGE_NAME="${IMAGE_NAME:-container-hul-common-lib-amaneq-soft-first-trial}"
-PLATFORM="${PLATFORM:-linux/amd64}"
+PLATFORM="${PLATFORM:-linux/amd64/v2}"
 NPROC="${NPROC:-4}"
 STAMP="${STAMP:-$(date -u +%Y%m%d-%H%Mutc)}"
 
