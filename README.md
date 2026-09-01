@@ -8,29 +8,45 @@ The image is based on AlmaLinux 10.1 and includes command-line tools useful for 
 
 ### Docker: pull from GHCR
 
+The published Docker image is `linux/amd64`. On Apple Silicon Macs, specify the platform explicitly so Docker Desktop uses amd64 emulation.
+
 ```bash
-docker pull ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
+docker pull --platform linux/amd64 \
+  ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
 ```
 
 Run it directly:
 
 ```bash
 docker run --rm -it \
-  --platform linux/amd64/v2 \
+  --platform linux/amd64 \
   --network host \
   -v "$PWD/work:/work" \
   ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
 ```
+
+On an ordinary x86_64 Linux host, `--platform linux/amd64` is harmless and keeps the command identical across Linux and Apple Silicon Mac environments.
 
 Or clone this repository and use the helper script:
 
 ```bash
 git clone https://github.com/nobukoba/container-hul-common-lib-amaneq-soft-first-trial.git
 cd container-hul-common-lib-amaneq-soft-first-trial
-bash run-docker-container.sh
+./run-docker-container.sh
 ```
 
+`run-docker-container.sh` defaults to the published GHCR `latest` image and `linux/amd64`, so a separate `docker pull` is normally not required. Docker will pull the image automatically if it is not already present locally.
+
 The host directory `./work` is mounted at `/work` in the container.
+
+You can override the image or platform when needed:
+
+```bash
+IMAGE=container-hul-common-lib-amaneq-soft-first-trial:latest ./run-docker-container.sh
+PLATFORM=linux/amd64 ./run-docker-container.sh
+```
+
+The helper also uses `--network host`. This is especially useful on Linux hosts when communicating directly with HUL/AMANEQ front-end hardware. Docker Desktop on macOS implements host networking through its Linux VM, so its behavior is not identical to native Linux host networking.
 
 ### Apptainer / Singularity
 
@@ -109,10 +125,10 @@ The image also includes common network and system diagnostic commands such as `i
 ```bash
 git clone https://github.com/nobukoba/container-hul-common-lib-amaneq-soft-first-trial.git
 cd container-hul-common-lib-amaneq-soft-first-trial
-bash build-docker-image.sh
+./build-docker-image.sh
 ```
 
-The local build creates both a UTC timestamped tag and `latest`:
+The local build targets `linux/amd64` by default and creates both a UTC timestamped tag and `latest`:
 
 ```text
 container-hul-common-lib-amaneq-soft-first-trial:YYYYMMDD-HHMMutc
@@ -122,7 +138,13 @@ container-hul-common-lib-amaneq-soft-first-trial:latest
 You can override the build parallelism, for example:
 
 ```bash
-NPROC=8 bash build-docker-image.sh
+NPROC=8 ./build-docker-image.sh
+```
+
+You can also override the target platform when deliberately testing another architecture:
+
+```bash
+PLATFORM=linux/amd64 ./build-docker-image.sh
 ```
 
 ## Container helper scripts
