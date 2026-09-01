@@ -24,7 +24,7 @@ The image is intended for development, operation, and diagnostic work with HUL/A
 
 ## Important build requirements
 
-1. Build the container from AlmaLinux 10.1 unless the repository is intentionally being migrated to another base image.
+1. Build the container from AlmaLinux 10.1 unless the repository is intentionally being migrated to another base image. For the x86-64-v2 build, use the AlmaLinux Client Library base image `almalinux/10-base:10.1`, not the Docker Official Library image `almalinux:10.1`. AlmaLinux 10 uses x86-64-v3 binaries by default, while the Client Library publishes a dedicated `linux/amd64/v2` variant.
 
 2. Target and publish the Docker image explicitly as `linux/amd64/v2` (x86-64-v2). Keep `linux/amd64/v2` explicit in GitHub Actions, local build helpers, Docker pull/run examples, and runtime helpers. Apple Silicon Macs should run this image through Docker Desktop's amd64 emulation with `--platform linux/amd64/v2`; do not silently change the target to plain `linux/amd64` merely because the host is arm64.
 
