@@ -52,16 +52,16 @@ Important directories are:
 /opt/spadi/src
 ```
 
-Use `/work` as the persistent writable user/development area.
+Use `/workspace` as the user/development workspace.
 
-The Docker run helper should bind a host work directory to `/work`. By default:
+The Docker run helper should bind the current host directory to `/workspace` by default:
 
 ```text
-host:      $PWD/work
-container: /work
+host:      $PWD
+container: /workspace
 ```
 
-`run-docker-container.sh` should create the host work directory automatically if it does not exist and allow another directory to be selected with the `WORK_DIR` environment variable.
+The container should start in `/workspace`. `run-docker-container.sh` should allow another host directory to be selected with the `WORKSPACE_DIR` environment variable.
 
 The run helper should default to the published GHCR image and to `PLATFORM=linux/amd64`, while allowing both to be overridden through environment variables.
 
