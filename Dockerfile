@@ -19,7 +19,7 @@ RUN dnf -y update && \
       traceroute \
       tcpdump \
       nmap-ncat \
-      curl \
+      curl-minimal \
       wget \
       procps-ng \
       psmisc \
@@ -61,7 +61,7 @@ RUN git clone https://github.com/spadi-alliance/amaneq-soft.git amaneq-soft && \
     cmake --install build
 
 ENV PATH=/opt/spadi/bin:${PATH}
-ENV LD_LIBRARY_PATH=/opt/spadi/lib64:/opt/spadi/lib:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH=/opt/spadi/lib64:/opt/spadi/lib
 
 WORKDIR /work
 
