@@ -44,9 +44,23 @@ On Apple Silicon Macs, `--platform linux/amd64` makes Docker Desktop use amd64 e
 
 #### Windows
 
-Install Docker Desktop for Windows and use Linux containers. Docker Desktop normally uses the WSL 2 backend.
+Install Docker Desktop for Windows and use Linux containers. Docker Desktop uses the WSL 2 backend by default for most Windows users.
 
-Open PowerShell in the directory you want to use as your workspace.
+WSL 2 must be enabled on Windows before Docker Desktop can use the WSL 2 backend. If WSL is not installed, open PowerShell as Administrator and run:
+
+```powershell
+wsl --install
+```
+
+Restart Windows if requested. New WSL installations created with `wsl --install` use WSL 2 by default.
+
+You can check the installed WSL version with:
+
+```powershell
+wsl --version
+```
+
+Then open PowerShell in the directory you want to use as your workspace.
 
 Pull the latest image:
 
