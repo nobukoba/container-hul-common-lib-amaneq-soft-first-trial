@@ -15,14 +15,14 @@ Do not recreate the environment only from this document. Preserve the current re
 
 ## Purpose
 
-This repository provides a Docker / Apptainer environment containing:
+This repository provides a Docker / Apptainer runtime environment containing:
 
 - `spadi-alliance/hul-common-lib`
 - `spadi-alliance/amaneq-soft`
 - `trabucayre/openFPGALoader`
 - `nobukoba/sitcp-sitcpxg-mpc-mpcx-ip-utility-first-trial`
 
-The image is intended for development, operation, diagnostics, FPGA programming, and SiTCP configuration with HUL/AMANEQ front-end electronics.
+The published image is intended primarily for operation, network diagnostics, FPGA programming, and SiTCP configuration with HUL/AMANEQ front-end electronics. It is not intended to be a general development image.
 
 ## Important build requirements
 
@@ -30,27 +30,48 @@ The image is intended for development, operation, diagnostics, FPGA programming,
 
 2. Target and publish the Docker image as standard `linux/amd64`. Keep `linux/amd64` explicit in GitHub Actions, local build helpers, Docker pull/run examples, and runtime helpers. Apple Silicon Macs should run the image through Docker Desktop's amd64 emulation with `--platform linux/amd64`.
 
-3. Build `hul-common-lib` before `amaneq-soft`.
+3. Use a multi-stage Docker build. Compilers, CMake, Make, Git, source trees, `*-devel` packages, and other build-only dependencies belong in the builder stage and must not be retained in the final runtime image.
 
-4. Install image-provided software under `/opt/spadi`. This includes `hul-common-lib`, `amaneq-soft`, `openFPGALoader`, and the SiTCP/SiTCP-XG MPC/MPCX/IP utilities.
+4. Build `hul-common-lib` before `amaneq-soft`.
 
-5. `amaneq-soft` must find the installed `HulCore` package through `/opt/spadi`, normally using `-DCMAKE_PREFIX_PATH=/opt/spadi`.
+5. Install image-provided software under `/opt/spadi`. This includes `hul-common-lib`, `amaneq-soft`, `openFPGALoader`, and the SiTCP/SiTCP-XG MPC/MPCX/IP utilities.
 
-6. Build `openFPGALoader` from the upstream `trabucayre/openFPGALoader` source tree with CMake and install it under `/opt/spadi`. Keep the required Linux USB/JTAG build dependencies available, including libftdi/libusb support. Its installed data files should remain under the `/opt/spadi` prefix as well.
+6. `amaneq-soft` must find the installed `HulCore` package through `/opt/spadi`, normally using `-DCMAKE_PREFIX_PATH=/opt/spadi`.
 
-7. Build `nobukoba/sitcp-sitcpxg-mpc-mpcx-ip-utility-first-trial` from source and install it with `make PREFIX=/opt/spadi install`. Keep its public commands in `/opt/spadi/bin`.
+7. Build `openFPGALoader` from the upstream `trabucayre/openFPGALoader` source tree with CMake and install it under `/opt/spadi`. Keep required Linux USB/JTAG build dependencies in the builder stage and corresponding runtime libraries in the final stage.
 
-8. Keep source-ref build arguments available for source-built components. At minimum preserve `HUL_COMMON_LIB_REF`, `AMANEQ_SOFT_REF`, `OPENFPGALOADER_REF`, and `SITCP_IP_UTILITY_REF` unless the versioning policy is intentionally changed.
+8. Build `nobukoba/sitcp-sitcpxg-mpc-mpcx-ip-utility-first-trial` from source and install it with `make PREFIX=/opt/spadi install`. Keep its public commands in `/opt/spadi/bin`.
 
-9. Keep the upstream repositories unmodified unless there is a clear reason to patch them. Prefer container-side build fixes when possible.
+9. Keep source-ref build arguments available for source-built components. At minimum preserve `HUL_COMMON_LIB_REF`, `AMANEQ_SOFT_REF`, `OPENFPGALOADER_REF`, and `SITCP_IP_UTILITY_REF` unless the versioning policy is intentionally changed.
 
-10. Do not add ROOT, NestDAQ, ARTEMIS, or unrelated DAQ software to this image unless explicitly requested.
+10. Keep the upstream repositories unmodified unless there is a clear reason to patch them. Prefer container-side build fixes when possible.
+
+11. Do not add ROOT, NestDAQ, ARTEMIS, or unrelated DAQ software to this image unless explicitly requested.
+
+## Runtime image policy
+
+The final published image should be kept focused on operation and diagnostics.
+
+Do not keep the following in the final stage unless explicitly requested:
+
+```text
+gcc
+gcc-c++
+make
+cmake
+git
+emacs
+*-devel packages
+upstream source trees
+```
+
+Build-only content should live in the Docker builder stage. The runtime image should contain only installed programs, required runtime libraries, practical shell/file utilities, and the diagnostic tools described below.
 
 ## Container layout
 
 Use `/opt/spadi` as the image-provided software area.
 
-Important directories are:
+Important runtime directories are:
 
 ```text
 /opt/spadi/bin
@@ -58,19 +79,12 @@ Important directories are:
 /opt/spadi/lib
 /opt/spadi/lib64
 /opt/spadi/share
-/opt/spadi/src
+/workspace
 ```
 
-Keep source trees under `/opt/spadi/src`. The expected source directories include:
+Upstream sources should be checked out in a temporary build-stage location such as `/tmp/spadi-src`; do not retain `/opt/spadi/src` source trees in the final runtime image.
 
-```text
-/opt/spadi/src/hul-common-lib
-/opt/spadi/src/amaneq-soft
-/opt/spadi/src/openFPGALoader
-/opt/spadi/src/sitcp-sitcpxg-mpc-mpcx-ip-utility-first-trial
-```
-
-Use `/workspace` as the user/development workspace.
+Use `/workspace` as the user/runtime workspace.
 
 The Docker run helper should bind the current host directory to `/workspace` by default:
 
@@ -100,9 +114,9 @@ sitcp-sitcpxg-ip-writer
 sitcp-sitcpxg-ip-reader
 ```
 
-## Diagnostic and interactive tools
+## Diagnostic tools
 
-This image is also used when diagnosing communication with DAQ/front-end hardware. Do not remove network and system diagnostic tools merely to minimize the image size.
+This image is used when diagnosing communication with DAQ/front-end hardware. Do not remove network and system diagnostic tools merely to minimize the image size.
 
 Keep a practical diagnostic set installed, including commands provided by packages such as:
 
@@ -139,7 +153,7 @@ lsof
 ps
 ```
 
-Keep Emacs available in the image for interactive editing. A terminal-oriented Emacs package such as `emacs-nox` is acceptable as long as the `emacs` command is available.
+A lightweight editor such as `vim-minimal` may remain available, but Emacs should not be included in the final runtime image unless explicitly requested.
 
 ## GitHub Actions and images
 
@@ -171,7 +185,7 @@ container-hul-common-lib-amaneq-soft-first-trial-YYYYMMDD-HHMMutc.sif
 
 Publish the SIF files as workflow artifacts and in the `latest` GitHub release so that the stable SIF download URL documented in the README remains usable.
 
-Keep the README synchronized with actual included software, commands, image names, paths, tags, helper scripts, platform requirements, hardware-access requirements, and download commands.
+Keep the README synchronized with actual included software, commands, image names, paths, tags, helper scripts, platform requirements, hardware-access requirements, runtime/build-stage separation, and download commands.
 
 ## Repository-level helper scripts
 
@@ -194,6 +208,8 @@ When working on this repository:
 - explain the specific cause of a build/runtime problem before making broad changes when possible;
 - prefer targeted fixes over global compiler or dependency changes;
 - preserve working behavior unrelated to the requested change;
+- preserve the network-diagnostic environment in the final image;
+- keep build tools and source trees out of the final image;
 - show concrete shell commands for testing;
 - after changing the repository, report exactly which files changed and what should be tested;
 - never claim to have inspected, built, tested, or modified something that was not actually accessible or executed.
