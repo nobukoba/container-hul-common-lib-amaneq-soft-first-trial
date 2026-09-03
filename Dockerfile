@@ -4,7 +4,7 @@ ARG NPROC=4
 ARG HUL_COMMON_LIB_REF=main
 ARG AMANEQ_SOFT_REF=main
 ARG OPENFPGALOADER_REF=master
-ARG SITCP_IP_UTILITY_REF=main
+ARG SITCP_IP_UTILITY_REF=75353888d15381bb03ce5bfea410851a832ef9a7
 
 RUN dnf -y update && \
     dnf -y install epel-release && \
