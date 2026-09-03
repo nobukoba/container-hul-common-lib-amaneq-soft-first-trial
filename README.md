@@ -1,6 +1,6 @@
 # container-hul-common-lib-amaneq-soft-first-trial
 
-Docker / Apptainer container for the SPADI `hul-common-lib` and `amaneq-soft` software.
+Docker / Apptainer container for SPADI HUL/AMANEQ software, FPGA programming, and SiTCP configuration utilities.
 
 The image is based on AlmaLinux 9 and targets standard `linux/amd64`.
 
@@ -10,10 +10,23 @@ The container builds and installs:
 
 - [`spadi-alliance/hul-common-lib`](https://github.com/spadi-alliance/hul-common-lib)
 - [`spadi-alliance/amaneq-soft`](https://github.com/spadi-alliance/amaneq-soft)
+- [`trabucayre/openFPGALoader`](https://github.com/trabucayre/openFPGALoader)
+- [`nobukoba/sitcp-sitcpxg-mpc-mpcx-ip-utility-first-trial`](https://github.com/nobukoba/sitcp-sitcpxg-mpc-mpcx-ip-utility-first-trial)
 
 They are installed under `/opt/spadi`.
 
 The image also includes common network and system diagnostic tools such as `ip`, `ping`, `ss`, `netstat`, `dig`, `nslookup`, `traceroute`, `tcpdump`, `nc`, `curl`, and `lsof`. Emacs is also included for interactive editing.
+
+Important installed commands include:
+
+```text
+openFPGALoader
+mpc-mpcx-ip-writer
+mpc-mpcx-ip-reader
+mpc-mpcx-ip-command
+sitcp-sitcpxg-ip-writer
+sitcp-sitcpxg-ip-reader
+```
 
 ## How to use
 
@@ -41,6 +54,20 @@ docker run --rm -it \
 The current host directory (`$PWD`) is mounted at `/workspace` in the container, and the container starts in `/workspace`.
 
 On Apple Silicon Macs, `--platform linux/amd64` makes Docker Desktop use amd64 emulation.
+
+For direct USB/JTAG access with `openFPGALoader`, the USB device must also be exposed to the container. On native Linux, for example, a development/test run can use:
+
+```bash
+docker run --rm -it \
+  --platform linux/amd64 \
+  --network host \
+  --privileged \
+  -v /dev/bus/usb:/dev/bus/usb \
+  -v "$PWD:/workspace" \
+  ghcr.io/nobukoba/container-hul-common-lib-amaneq-soft-first-trial:latest
+```
+
+`--privileged` is convenient for hardware testing but grants broad device access. Use a narrower device mapping when the required USB device node is known.
 
 #### Windows
 
@@ -76,9 +103,7 @@ docker run --rm -it --platform linux/amd64 --network host -v "${PWD}:/workspace"
 
 The current PowerShell directory is mounted at `/workspace` in the container, and the container starts in `/workspace`.
 
-On Windows, `--network host` requires host networking to be enabled in Docker Desktop. Its behavior differs from native Linux host networking.
-
-For direct communication with HUL/AMANEQ front-end hardware, native Linux is recommended.
+On Windows, `--network host` requires host networking to be enabled in Docker Desktop. Its behavior differs from native Linux host networking. USB/JTAG passthrough also requires additional host-side setup, so native Linux is recommended for direct HUL/AMANEQ and FPGA-programmer access.
 
 ### Apptainer / Singularity
 
@@ -107,6 +132,24 @@ singularity shell \
 
 The current host directory (`$PWD`) is mounted at `/workspace`.
 
+## Quick command checks
+
+Inside the container:
+
+```bash
+openFPGALoader --version
+mpc-mpcx-ip-reader --help
+sitcp-sitcpxg-ip-reader --help
+```
+
+For example, to inspect a SiTCP device:
+
+```bash
+mpc-mpcx-ip-reader 192.168.2.161
+```
+
+The SiTCP utilities use RBCP UDP port `4660` and a default timeout of `3` seconds unless overridden by command-line options.
+
 ## Container layout
 
 Important paths inside the container are:
@@ -116,11 +159,14 @@ Important paths inside the container are:
 /opt/spadi/include
 /opt/spadi/lib
 /opt/spadi/lib64
+/opt/spadi/share
 /opt/spadi/src
 /workspace
 ```
 
 `/opt/spadi` contains the installed software. `/workspace` is the user workspace and is normally bound to the current host directory (`$PWD`).
+
+Source trees are retained under `/opt/spadi/src`, including `hul-common-lib`, `amaneq-soft`, `openFPGALoader`, and `sitcp-sitcpxg-mpc-mpcx-ip-utility-first-trial`.
 
 ## For Developers
 
@@ -188,6 +234,17 @@ Build parallelism can be changed with `NPROC`:
 ```bash
 NPROC=8 ./build-docker-image.sh
 ```
+
+The Dockerfile exposes source-ref build arguments for all source-built packages:
+
+```text
+HUL_COMMON_LIB_REF
+AMANEQ_SOFT_REF
+OPENFPGALOADER_REF
+SITCP_IP_UTILITY_REF
+```
+
+Their defaults are the upstream development branches currently specified in the Dockerfile.
 
 ### Published images and tags
 
