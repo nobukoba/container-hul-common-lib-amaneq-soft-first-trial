@@ -81,9 +81,20 @@ jobs:
             "${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}" \
             bash -lc '
               set -e
-              test -d /opt/spadi/src/hul-common-lib
-              test -d /opt/spadi/src/amaneq-soft
-              command -v emacs
+
+              # Runtime software must be available.
+              command -v openFPGALoader
+              command -v mpc-mpcx-ip-writer
+              command -v mpc-mpcx-ip-reader
+              command -v mpc-mpcx-ip-command
+              command -v sitcp-sitcpxg-ip-writer
+              command -v sitcp-sitcpxg-ip-reader
+              test -x /opt/spadi/bin/get_version
+              test -x /opt/spadi/StrHRTDC/bin/get_version_hrtdc
+              find /opt/spadi -name HulCoreConfig.cmake -print -quit | grep -q .
+              openFPGALoader --version
+
+              # Network/system diagnostics must remain available.
               command -v ip
               command -v ss
               command -v ping
@@ -95,7 +106,15 @@ jobs:
               command -v nc
               command -v curl
               command -v lsof
-              find /opt/spadi -name HulCoreConfig.cmake -print -quit | grep -q .
+
+              # Build/development environment must not be carried into runtime.
+              ! command -v emacs
+              ! command -v gcc
+              ! command -v g++
+              ! command -v cmake
+              ! command -v make
+              ! command -v git
+              test ! -d /opt/spadi/src
             '
 
       - name: Set up Apptainer
@@ -140,14 +159,37 @@ jobs:
         run: |
           apptainer exec "${SIF_NAME}" bash -lc '
             set -e
-            test -d /opt/spadi/src/hul-common-lib
-            test -d /opt/spadi/src/amaneq-soft
-            command -v emacs
+
+            command -v openFPGALoader
+            command -v mpc-mpcx-ip-writer
+            command -v mpc-mpcx-ip-reader
+            command -v mpc-mpcx-ip-command
+            command -v sitcp-sitcpxg-ip-writer
+            command -v sitcp-sitcpxg-ip-reader
+            test -x /opt/spadi/bin/get_version
+            test -x /opt/spadi/StrHRTDC/bin/get_version_hrtdc
+            find /opt/spadi -name HulCoreConfig.cmake -print -quit | grep -q .
+            openFPGALoader --version
+
             command -v ip
             command -v ss
             command -v ping
+            command -v netstat
+            command -v dig
+            command -v nslookup
+            command -v traceroute
+            command -v tcpdump
             command -v nc
-            find /opt/spadi -name HulCoreConfig.cmake -print -quit | grep -q .
+            command -v curl
+            command -v lsof
+
+            ! command -v emacs
+            ! command -v gcc
+            ! command -v g++
+            ! command -v cmake
+            ! command -v make
+            ! command -v git
+            test ! -d /opt/spadi/src
           '
 
       - name: Upload SIF artifacts
