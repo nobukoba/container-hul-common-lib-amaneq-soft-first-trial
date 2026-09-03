@@ -15,7 +15,9 @@ The container builds and installs:
 
 They are installed under `/opt/spadi`.
 
-The image also includes common network and system diagnostic tools such as `ip`, `ping`, `ss`, `netstat`, `dig`, `nslookup`, `traceroute`, `tcpdump`, `nc`, `curl`, and `lsof`. Emacs is also included for interactive editing.
+The published image is a runtime/operation image. Compilers, CMake, Make, Git, development packages, source trees, and Emacs are used only in the Docker build stage and are not kept in the final image.
+
+The final image intentionally keeps common network and system diagnostic tools such as `ip`, `ping`, `ss`, `netstat`, `dig`, `nslookup`, `traceroute`, `tcpdump`, `nc`, `curl`, and `lsof` for checking communication with front-end hardware.
 
 Important installed commands include:
 
@@ -150,9 +152,19 @@ mpc-mpcx-ip-reader 192.168.2.161
 
 The SiTCP utilities use RBCP UDP port `4660` and a default timeout of `3` seconds unless overridden by command-line options.
 
+Useful network checks include:
+
+```bash
+ip addr
+ip route
+ping 192.168.2.161
+ss -anu
+nc -zvu 192.168.2.161 4660
+```
+
 ## Container layout
 
-Important paths inside the container are:
+Important paths inside the runtime image are:
 
 ```text
 /opt/spadi/bin
@@ -160,13 +172,12 @@ Important paths inside the container are:
 /opt/spadi/lib
 /opt/spadi/lib64
 /opt/spadi/share
-/opt/spadi/src
 /workspace
 ```
 
-`/opt/spadi` contains the installed software. `/workspace` is the user workspace and is normally bound to the current host directory (`$PWD`).
+`/opt/spadi` contains installed software. `/workspace` is the user workspace and is normally bound to the current host directory (`$PWD`).
 
-Source trees are retained under `/opt/spadi/src`, including `hul-common-lib`, `amaneq-soft`, `openFPGALoader`, and `sitcp-sitcpxg-mpc-mpcx-ip-utility-first-trial`.
+Upstream source trees are built in a temporary directory in the Docker builder stage and are not retained in the published runtime image.
 
 ## For Developers
 
@@ -221,6 +232,8 @@ WORKSPACE_DIR=/path/to/project ./run-docker-container.sh
 ```bash
 ./build-docker-image.sh
 ```
+
+The Dockerfile uses a multi-stage build: compilers, CMake, Make, Git, source trees, and `*-devel` packages exist only in the builder stage. The final stage contains the installed DAQ/FPGA/SiTCP programs, their runtime libraries, and network/system diagnostic tools.
 
 The local build targets `linux/amd64` by default and creates both a UTC timestamped tag and `latest`:
 
